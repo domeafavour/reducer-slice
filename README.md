@@ -1,88 +1,133 @@
-# React Hook Package Template
+# Reducer Slice
 
-- Build with [tsup](https://tsup.egoist.dev/)
-- Publish to npm with github actions
+[![npm version](https://img.shields.io/npm/v/@domeadev/reducer-slice.svg)](https://www.npmjs.com/package/@domeadev/reducer-slice)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
-## Prepare
+A lightweight utility for creating Redux-like reducer slices
 
-Update package.json with your package `name`, `description`, `keywords`, `author`, `repository`, etc.
+## Installation
 
-For example:
-
-- package name: `react-use-my-hook`
-- description: `A react hook package`
-- keywords: `["react", "hook", "your-keyword"]`
-- author: `John`
-- repository: `https://github.com/john/react-use-my-hook.git`
-
-```diff
-  {
---  "name": "package-name",
-++  "name": "react-use-my-hook",
-    "version": "0.0.1",
---  "description": "<description>",
-++  "description": "A react hook package",
-    "main": ".dist/index.js",
-    "types": ".dist/index.d.ts",
-    "files": [
-      ".dist"
-    ],
-    "keywords": [
-      "react",
---    "hook"
-++    "hook",
-++    "your-keyword"
-    ],
---  "author": "<author name>",
-++  "author": "John",
-    "license": "MIT",
-    "peerDependencies": {
-      "react": ">=16.8.0",
-      "react-dom": ">=16.8.0"
-    },
-    "devDependencies": {
-      "@testing-library/dom": "^10.4.0",
-      "@testing-library/jest-dom": "^6.6.3",
-      "@testing-library/react": "^16.1.0",
-      "@types/react": ">=16.8.0",
-      "@types/react-dom": ">=16.8.0",
-      "happy-dom": "^16.5.3",
-      "react": ">=16.8.0",
-      "react-dom": ">=16.8.0",
-      "tsup": "^8.0.2",
-      "typescript": "^5.4.5",
-      "typescript": "^5.4.5",
-      "vitest": "^2.1.8"
-    },
-    "repository": {
-      "type": "git",
---    "url": "<your repo url>"
-++    "url": "https://github.com/john/react-use-my-hook.git"
-    },
-    "scripts": {
-      "test": "vitest",
-      "build": "tsup"
-    }
-  }
-
-```
-
-## Build
+### npm
 
 ```bash
-pnpm build
+npm install @domeadev/reducer-slice
 ```
 
-## Test
+### yarn
 
 ```bash
-pnpm test
+yarn add @domeadev/reducer-slice
 ```
 
-## Publish
+### pnpm
 
-Add a [github secret](https://docs.github.com/en/actions/security-guides/using-secrets-in-github-actions) `NPM_PUBLISH_TOKEN` with your [npm access token](https://docs.npmjs.com/about-access-tokens).
+```bash
+pnpm add @domeadev/reducer-slice
+```
 
-![secrets and variables](media/image.png)
+## Features
 
-Draft a new release on github, then the github actions will publish the package to npm.
+- Create type-safe reducer slices
+- Automatically generate action creators
+- Immutable state updates
+- TypeScript support with full type inference
+
+## Usage
+
+### React + useReducer
+
+```tsx
+import { useReducer } from "react";
+import { createReducerSlice } from "@domeadev/reducer-slice";
+
+// Define your slice
+const counterSlice = createReducerSlice({
+  state: { count: 0 },
+  reducers: {
+    increment: (state) => ({ ...state, count: state.count + 1 }),
+    decrement: (state) => ({ ...state, count: state.count - 1 }),
+    addAmount: (state, payload: number) => ({
+      ...state,
+      count: state.count + payload,
+    }),
+  },
+});
+
+// Use it with React's useReducer hook
+function CounterComponent() {
+  const [state, dispatch] = useReducer(
+    counterSlice.reducer,
+    counterSlice.initialState
+  );
+  const { increment, decrement, addAmount } = counterSlice.actions;
+
+  return (
+    <div>
+      <p>Count: {state.count}</p>
+      <button onClick={() => dispatch(increment())}>Increment</button>
+      <button onClick={() => dispatch(decrement())}>Decrement</button>
+      <button onClick={() => dispatch(addAmount(5))}>Add 5</button>
+    </div>
+  );
+}
+```
+
+### Redux
+
+```tsx
+import { createStore } from "redux";
+import { createReducerSlice } from "@domeadev/reducer-slice";
+// Define your slice
+const counterSlice = createReducerSlice({
+  state: { count: 0 },
+  reducers: {
+    increment: (state) => ({ ...state, count: state.count + 1 }),
+    decrement: (state) => ({ ...state, count: state.count - 1 }),
+    addAmount: (state, payload: number) => ({
+      ...state,
+      count: state.count + payload,
+    }),
+  },
+});
+// Create Redux store
+const store = createStore(counterSlice.reducer, counterSlice.initialState);
+// Use the actions
+store.dispatch(counterSlice.actions.increment());
+store.dispatch(counterSlice.actions.decrement());
+store.dispatch(counterSlice.actions.addAmount(5));
+```
+
+## API Reference
+
+### `createReducerSlice`
+
+```typescript
+function createReducerSlice<State, Reducers>(slice: {
+  state: State;
+  reducers: Reducers;
+}): {
+  initialState: State;
+  reducer: (state: State, action: Action) => State;
+  actions: ActionCreators;
+};
+```
+
+#### Parameters
+
+- `slice`: An object containing:
+  - `state`: The initial state
+  - `reducers`: An object of reducer functions that take state and optional payload
+
+#### Returns
+
+- `initialState`: The initial state provided
+- `reducer`: A reducer function to use with `useReducer`
+- `actions`: Auto-generated action creators corresponding to your reducers
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+MIT © [domeafavour](https://github.com/domeafavour)
